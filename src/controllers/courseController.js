@@ -2,8 +2,12 @@ const courseService = require('../services/courseService');
 
 const getCourses = async (req, res) => {
   try {
-    const courses = await courseService.getAllCourses();
-    res.status(200).json({ status: 'success', data: courses });
+    const courses = await courseService.getAllCourses(req.query);
+    res.status(200).json({ 
+      status: 'success', 
+      total: courses.length, 
+      data: courses 
+    });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
   }

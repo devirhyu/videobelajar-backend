@@ -14,7 +14,6 @@ const db = mysql.createPool({
   queueLimit: 0,
 });
 
-// Tes koneksi database tanpa menghentikan server
 db.getConnection()
   .then((connection) => {
     console.log('Database MySQL berhasil terhubung!');

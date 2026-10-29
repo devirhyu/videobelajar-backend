@@ -1,7 +1,34 @@
 const db = require('../config/db');
 
-const getAllCourses = async () => {
-  const [rows] = await db.query('SELECT * FROM courses');
+const getAllCourses = async (query) => {
+  let sql = 'SELECT * FROM courses WHERE 1=1';
+  const queryParams = [];
+
+  if (query.search) {
+    sql += ' AND (title LIKE ? OR description LIKE ?)';
+    queryParams.push(`%${query.search}%`, `%${query.search}%`);
+  }
+
+  if (query.category) {
+    sql += ' AND category = ?';
+    queryParams.push(query.category);
+  }
+
+  if (query.sort) {
+    const [field, order] = query.sort.split(':');
+    const validFields = ['id', 'title', 'price', 'category'];
+    const validOrders = ['ASC', 'DESC', 'asc', 'desc'];
+
+    if (validFields.includes(field) && validOrders.includes(order)) {
+      sql += ` ORDER BY ${field} ${order.toUpperCase()}`;
+    } else {
+      sql += ' ORDER BY id DESC'; 
+    }
+  } else {
+    sql += ' ORDER BY id DESC'; 
+  }
+
+  const [rows] = await db.query(sql, queryParams);
   return rows;
 };
 

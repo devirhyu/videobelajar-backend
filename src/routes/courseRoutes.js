@@ -1,18 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const {
-  getCourses,
-  getCourseById,
-  addCourse,
-  editCourse,
-  removeCourse,
-} = require('../controllers/courseController');
+const upload = require('../middleware/uploadMiddleware');
+const verifyToken = require('../middleware/verifyToken');
 
-// Mapping endpoint
-router.get('/', getCourses);
-router.get('/:id', getCourseById);
-router.post('/', addCourse);
-router.put('/:id', editCourse);
-router.delete('/:id', removeCourse);
+router.post('/upload-image', verifyToken, upload.single('image'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Tidak ada file yang di-upload atau format file salah.'
+            });
+        }
+
+       
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Gambar berhasil di-upload!',
+            data: {
+                filename: req.file.filename,
+                url: imageUrl
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: error.message
+        });
+    }
+});
 
 module.exports = router;
